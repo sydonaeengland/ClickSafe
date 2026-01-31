@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.gmail-emails]
 verify_jwt = false
+
+[functions.report-scam]
+verify_jwt = false
