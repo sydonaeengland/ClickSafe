@@ -20,10 +20,10 @@ const About = () => {
             </div>
           </div>
           <h1 className="text-4xl font-bold text-foreground mb-3">
-            About PhishGuard
+            About ClickSafe
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            An AI-powered phishing and scam detection platform built specifically for university students.
+            An AI-powered phishing and scam detection platform built specifically for university students. Think Before You Click.
           </p>
         </motion.div>
 
@@ -36,10 +36,10 @@ const About = () => {
         >
           <h2 className="text-2xl font-semibold text-foreground mb-4 flex items-center gap-2">
             <Shield className="h-6 w-6 text-primary" />
-            What PhishGuard Does
+            What ClickSafe Does
           </h2>
           <p className="text-muted-foreground mb-4">
-            PhishGuard helps you identify phishing emails, scam messages, and malicious links before you fall victim to them. 
+            ClickSafe helps you identify phishing emails, scam messages, and malicious links before you fall victim to them. 
             Our platform analyzes suspicious content and provides clear, actionable explanations of potential risks.
           </p>
           <div className="grid sm:grid-cols-2 gap-4">
@@ -105,7 +105,7 @@ const About = () => {
             How AI + Rules Work Together
           </h2>
           <p className="text-muted-foreground mb-4">
-            PhishGuard uses a hybrid approach that combines the best of rule-based detection and AI explanation:
+            ClickSafe uses a hybrid approach that combines the best of rule-based detection and AI explanation:
           </p>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="bg-accent/50 rounded-lg p-4">
@@ -149,7 +149,7 @@ const About = () => {
             Privacy-First Design
           </h2>
           <p className="text-muted-foreground mb-4">
-            Your privacy is paramount. PhishGuard is designed with the following principles:
+            Your privacy is paramount. ClickSafe is designed with the following principles:
           </p>
           <ul className="space-y-2 text-muted-foreground">
             <li className="flex items-start gap-2">
@@ -183,7 +183,7 @@ const About = () => {
             Limitations
           </h2>
           <p className="text-muted-foreground mb-4">
-            While PhishGuard is a powerful tool, please be aware of its limitations:
+            While ClickSafe is a powerful tool, please be aware of its limitations:
           </p>
           <ul className="space-y-2 text-muted-foreground">
             <li className="flex items-start gap-2">

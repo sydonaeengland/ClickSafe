@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Inbox, MessageSquare, Image, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Shield, Scan, AlertTriangle, Lock, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface TutorialModalProps {
@@ -13,33 +13,25 @@ interface TutorialModalProps {
 const tutorialSteps = [
   {
     id: 1,
-    title: 'Scan Your Inbox',
-    description: 'Connect your Gmail account or use our demo inbox to automatically scan your emails for phishing attempts and suspicious messages.',
-    icon: Inbox,
-    action: '/inbox',
-    actionLabel: 'Try Inbox Scan',
+    title: 'Scan Suspicious Content',
+    description: 'Connect your Gmail or Outlook, paste text, enter a URL, or upload a screenshot of a suspicious message.',
+    icon: Scan,
+    action: '/',
+    actionLabel: 'Try Quick Scan',
   },
   {
     id: 2,
-    title: 'Paste Message or Link',
-    description: 'Copy and paste any suspicious email, text message, or URL directly into our scanner for instant analysis.',
-    icon: MessageSquare,
+    title: 'AI-Powered Analysis',
+    description: 'ClickSafe analyzes the content using rule-based detection and AI to identify phishing patterns, urgency tactics, and red flags.',
+    icon: AlertTriangle,
     action: '/',
-    actionLabel: 'Try Text Scan',
+    actionLabel: 'See How It Works',
   },
   {
     id: 3,
-    title: 'Upload Screenshot (OCR)',
-    description: 'Have a suspicious message on your phone? Take a screenshot and upload it - our OCR technology will extract and analyze the text.',
-    icon: Image,
-    action: '/',
-    actionLabel: 'Try Screenshot Scan',
-  },
-  {
-    id: 4,
-    title: 'Read Results & Take Action',
-    description: 'Get a clear risk score, detailed explanation of red flags, and actionable safety advice. Copy reports or forward to your IT department.',
-    icon: CheckCircle,
+    title: 'Get Your Risk Score',
+    description: 'Receive a clear 0-100 risk score with color-coded results, detailed explanations, and actionable safety advice.',
+    icon: Shield,
     action: '/top-scams',
     actionLabel: 'View Common Scams',
   },
@@ -70,8 +62,11 @@ export function TutorialModal({ open, onOpenChange }: TutorialModalProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold flex items-center gap-2">
-            <span className="text-primary">How to Use</span> PhishGuard
+          <DialogTitle className="flex items-center gap-2 text-xl">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+              <Shield className="h-4 w-4" />
+            </div>
+            How ClickSafe Works
           </DialogTitle>
         </DialogHeader>
 
@@ -136,6 +131,14 @@ export function TutorialModal({ open, onOpenChange }: TutorialModalProps) {
             Next
             <ChevronRight className="h-4 w-4" />
           </Button>
+        </div>
+
+        {/* Privacy Note */}
+        <div className="flex items-center gap-2 pt-4 border-t border-border bg-muted/50 -mx-6 -mb-6 px-6 py-4 rounded-b-lg">
+          <Lock className="h-4 w-4 text-primary" />
+          <p className="text-xs text-muted-foreground">
+            <strong className="text-foreground">Privacy First:</strong> ClickSafe never stores or sends your emails. All scanning happens securely with metadata-only logging.
+          </p>
         </div>
       </DialogContent>
     </Dialog>

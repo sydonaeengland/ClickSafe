@@ -26,11 +26,11 @@ export function Header() {
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 group">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-glow transition-all group-hover:shadow-glow-lg">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-glow transition-all group-hover:shadow-glow-lg animate-neon-pulse">
                 <Shield className="h-5 w-5" />
               </div>
               <span className="text-xl font-bold text-foreground">
-                Phish<span className="text-primary">Guard</span>
+                Click<span className="text-primary">Safe</span>
               </span>
             </Link>
 
@@ -57,10 +57,10 @@ export function Header() {
                 variant="outline"
                 size="sm"
                 onClick={() => setTutorialOpen(true)}
-                className="hidden sm:flex items-center gap-2"
+                className="hidden sm:flex items-center gap-2 border-primary/30 hover:border-primary hover:bg-primary/10"
               >
                 <BookOpen className="h-4 w-4" />
-                Tutorial
+                How It Works
               </Button>
               <Button
                 variant="ghost"
@@ -120,7 +120,7 @@ export function Header() {
                     className="flex-1"
                   >
                     <BookOpen className="h-4 w-4 mr-2" />
-                    Tutorial
+                    How It Works
                   </Button>
                   <Button
                     variant="ghost"

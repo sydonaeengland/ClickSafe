@@ -1,5 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Shield, Eye, Trash2, Server } from 'lucide-react';
+import { Shield, Eye, Trash2, Lock } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface PrivacyModalProps {
   open: boolean;
@@ -9,23 +10,23 @@ interface PrivacyModalProps {
 const privacyPoints = [
   {
     icon: Eye,
-    title: 'No Permanent Storage',
-    description: 'Your emails and messages are analyzed in real-time and never stored on our servers. All data is processed locally when possible.',
+    title: 'Read-Only Access',
+    description: 'We only read email content for scanning. ClickSafe cannot send, delete, or modify your emails.',
   },
   {
     icon: Trash2,
-    title: 'Automatic Deletion',
-    description: 'Any temporarily processed data is immediately deleted after analysis. We don\'t keep logs of what you scan.',
+    title: 'No Content Storage',
+    description: 'Email content, screenshots, and pasted text are never permanently stored. Only scan metadata is logged.',
+  },
+  {
+    icon: Lock,
+    title: 'Secure Processing',
+    description: 'All scans are processed securely. Your data is encrypted in transit and never shared with third parties.',
   },
   {
     icon: Shield,
-    title: 'End-to-End Security',
-    description: 'All communications are encrypted. Your data never leaves your browser for local scans.',
-  },
-  {
-    icon: Server,
-    title: 'Minimal Data Collection',
-    description: 'We only collect anonymous usage statistics to improve our detection algorithms. No personal information is ever collected.',
+    title: 'Your Control',
+    description: 'Disconnect your email account anytime. Use "Save Scan" only if you explicitly want to keep a report.',
   },
 ];
 
@@ -34,38 +35,38 @@ export function PrivacyModal({ open, onOpenChange }: PrivacyModalProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold flex items-center gap-2">
-            <Shield className="h-5 w-5 text-primary" />
+          <DialogTitle className="flex items-center gap-2 text-xl">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+              <Lock className="h-4 w-4" />
+            </div>
             Privacy & Security
           </DialogTitle>
         </DialogHeader>
 
-        <div className="py-4 space-y-6">
-          <p className="text-muted-foreground">
-            PhishGuard is designed with privacy as a core principle. Here's how we protect your data:
-          </p>
-
-          <div className="space-y-4">
-            {privacyPoints.map((point, index) => (
-              <div key={index} className="flex gap-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <point.icon className="h-5 w-5" />
-                </div>
-                <div>
-                  <h4 className="font-medium text-foreground">{point.title}</h4>
-                  <p className="text-sm text-muted-foreground mt-0.5">{point.description}</p>
-                </div>
+        <div className="space-y-4 py-4">
+          {privacyPoints.map((point, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className="flex gap-3 p-3 rounded-lg bg-muted/50"
+            >
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <point.icon className="h-5 w-5" />
               </div>
-            ))}
-          </div>
+              <div>
+                <h3 className="font-medium text-foreground">{point.title}</h3>
+                <p className="text-sm text-muted-foreground">{point.description}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
 
-          <div className="bg-accent/50 rounded-lg p-4 border border-border">
-            <p className="text-sm text-muted-foreground">
-              <strong className="text-foreground">Note:</strong> This is a hackathon demonstration project. 
-              For production use, additional security measures would be implemented including SOC 2 compliance, 
-              GDPR adherence, and regular security audits.
-            </p>
-          </div>
+        <div className="text-center pt-4 border-t border-border">
+          <p className="text-sm font-medium text-primary">
+            "ClickSafe never sends or deletes your emails."
+          </p>
         </div>
       </DialogContent>
     </Dialog>

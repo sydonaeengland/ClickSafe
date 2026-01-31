@@ -1,14 +1,24 @@
-// PhishGuard Scanning Engine - Hybrid Rule-Based + AI Explanation
+// ClickSafe Scanning Engine - Hybrid Rule-Based + AI Explanation
 
 export type RiskLevel = 'low' | 'medium' | 'high';
+
+export type ScamCategory = 
+  | 'scholarship_scam'
+  | 'job_internship_scam'
+  | 'account_verification_scam'
+  | 'banking_loan_scam'
+  | 'delivery_scam'
+  | 'other';
 
 export interface ScanResult {
   riskScore: number;
   riskLevel: RiskLevel;
+  category: ScamCategory;
+  categoryConfidence: number;
   redFlags: string[];
   explanation: string;
   safetyAdvice: string[];
-  scamCategory?: string;
+  summaryReport: string;
 }
 
 // Patterns for detecting phishing/scam indicators
@@ -23,6 +33,9 @@ const URGENCY_PATTERNS = [
   /\baction required\b/i,
   /\bfinal notice\b/i,
   /\bsuspended\b/i,
+  /\basap\b/i,
+  /\bwithin 24 hours\b/i,
+  /\btoday only\b/i,
 ];
 
 const CREDENTIAL_PATTERNS = [
@@ -37,6 +50,8 @@ const CREDENTIAL_PATTERNS = [
   /\bssn\b/i,
   /\bcredit card\b/i,
   /\bbank account\b/i,
+  /\bupdate.*payment\b/i,
+  /\breset.*password\b/i,
 ];
 
 const THREAT_PATTERNS = [
@@ -48,6 +63,7 @@ const THREAT_PATTERNS = [
   /\bfine\b/i,
   /\bfraud\s*detected\b/i,
   /\bunauthorized\s*(access|activity)\b/i,
+  /\bsecurity\s*breach\b/i,
 ];
 
 const TOO_GOOD_PATTERNS = [
@@ -59,6 +75,7 @@ const TOO_GOOD_PATTERNS = [
   /\b100%\s*(free|guaranteed)\b/i,
   /\beasy money\b/i,
   /\bwork from home\b.*\b(\$\d+|earn)\b/i,
+  /\bno experience\s*(needed|required)\b/i,
 ];
 
 const SUSPICIOUS_LINK_PATTERNS = [
@@ -72,9 +89,11 @@ const SUSPICIOUS_LINK_PATTERNS = [
   /adf\.ly/i,
   /@.*\.(tk|ml|ga|cf|gq)\b/i,
   /\.(xyz|top|club|online|site|website|space|fun|icu)\b/i,
+  /rebrand\.ly/i,
+  /short\.io/i,
 ];
 
-const IMPERSONATION_PATTERNS = [
+const SENDER_MISMATCH_PATTERNS = [
   /\b(paypal|amazon|netflix|apple|microsoft|google|facebook|instagram|bank\s*of\s*america|wells\s*fargo|chase)\b/i,
   /\bcustomer\s*(service|support)\b/i,
   /\btech\s*support\b/i,
@@ -83,16 +102,15 @@ const IMPERSONATION_PATTERNS = [
   /\bfinancial\s*aid\b/i,
   /\bscholarship\s*(committee|office)\b/i,
   /\bregistrar\b/i,
+  /\buniversity\s*(admin|office)\b/i,
 ];
 
 const SCAM_CATEGORIES = {
-  scholarship: [/scholarship/i, /financial aid/i, /grant/i, /tuition/i, /education fund/i],
-  job: [/job offer/i, /internship/i, /position available/i, /hiring/i, /work from home/i, /remote job/i, /employment/i],
-  account: [/verify.*account/i, /account.*suspended/i, /password.*reset/i, /login.*attempt/i, /security.*alert/i],
-  delivery: [/package/i, /delivery/i, /shipment/i, /tracking/i, /ups/i, /fedex/i, /usps/i, /dhl/i],
-  prize: [/winner/i, /lottery/i, /prize/i, /reward/i, /gift card/i, /congratulations.*won/i],
-  romance: [/dear friend/i, /lonely/i, /meet you/i, /relationship/i],
-  tech_support: [/tech support/i, /virus detected/i, /computer.*infected/i, /call.*immediately/i],
+  scholarship_scam: [/scholarship/i, /financial aid/i, /grant/i, /tuition/i, /education fund/i, /student loan forgiveness/i],
+  job_internship_scam: [/job offer/i, /internship/i, /position available/i, /hiring/i, /work from home/i, /remote job/i, /employment/i, /salary/i, /interview/i],
+  account_verification_scam: [/verify.*account/i, /account.*suspended/i, /password.*reset/i, /login.*attempt/i, /security.*alert/i, /unusual activity/i],
+  banking_loan_scam: [/bank/i, /loan/i, /credit/i, /wire transfer/i, /payment/i, /transaction/i, /refund/i],
+  delivery_scam: [/package/i, /delivery/i, /shipment/i, /tracking/i, /ups/i, /fedex/i, /usps/i, /dhl/i, /customs/i],
 };
 
 // URL-specific patterns
@@ -123,50 +141,60 @@ function detectPatterns(text: string, patterns: RegExp[]): string[] {
   return matches;
 }
 
-function detectScamCategory(text: string): string | undefined {
+function detectScamCategory(text: string): { category: ScamCategory; confidence: number } {
+  let bestMatch: { category: ScamCategory; confidence: number } = { category: 'other', confidence: 30 };
+  let maxMatches = 0;
+
   for (const [category, patterns] of Object.entries(SCAM_CATEGORIES)) {
+    let matchCount = 0;
     for (const pattern of patterns) {
       if (pattern.test(text)) {
-        return category;
+        matchCount++;
       }
     }
+    if (matchCount > maxMatches) {
+      maxMatches = matchCount;
+      const confidence = Math.min(95, 50 + matchCount * 15);
+      bestMatch = { category: category as ScamCategory, confidence };
+    }
   }
-  return undefined;
+
+  return bestMatch;
 }
 
 function calculateRiskScore(flags: Record<string, number>): number {
   let score = 0;
   
-  // Urgency: 15 points each, max 30
-  score += Math.min(flags.urgency * 15, 30);
+  // Urgency: +20 points
+  if (flags.urgency > 0) score += 20;
   
-  // Credential requests: 20 points each, max 40
-  score += Math.min(flags.credentials * 20, 40);
+  // Credential requests: +30 points
+  if (flags.credentials > 0) score += 30;
   
-  // Threats: 20 points each, max 40
-  score += Math.min(flags.threats * 20, 40);
+  // Too good to be true: +15 points
+  if (flags.tooGood > 0) score += 15;
   
-  // Too good to be true: 25 points each, max 50
-  score += Math.min(flags.tooGood * 25, 50);
+  // Suspicious links: +20 points
+  if (flags.suspiciousLinks > 0) score += 20;
   
-  // Suspicious links: 15 points each, max 30
-  score += Math.min(flags.suspiciousLinks * 15, 30);
+  // Sender/domain mismatch: +15 points
+  if (flags.senderMismatch > 0) score += 15;
   
-  // Impersonation: 20 points each, max 40
-  score += Math.min(flags.impersonation * 20, 40);
+  // Threats add weight
+  if (flags.threats > 0) score += 15;
   
   return Math.min(score, 100);
 }
 
 function getRiskLevel(score: number): RiskLevel {
-  if (score < 30) return 'low';
-  if (score < 60) return 'medium';
+  if (score <= 33) return 'low';
+  if (score <= 66) return 'medium';
   return 'high';
 }
 
 function generateExplanation(
   flags: Record<string, string[]>,
-  category: string | undefined,
+  category: ScamCategory,
   riskLevel: RiskLevel
 ): string {
   const explanations: string[] = [];
@@ -180,32 +208,32 @@ function generateExplanation(
   }
   
   if (flags.urgency.length > 0) {
-    explanations.push("The message uses urgent language to pressure you into acting quickly without thinking.");
+    explanations.push("Uses urgent language to pressure quick action without thinking.");
   }
   
   if (flags.credentials.length > 0) {
-    explanations.push("It requests sensitive information like passwords or personal details - legitimate organizations rarely ask for this via email.");
+    explanations.push("Requests sensitive information - legitimate organizations rarely ask for this via email.");
   }
   
   if (flags.threats.length > 0) {
-    explanations.push("The message contains threats about account suspension or legal action to scare you.");
+    explanations.push("Contains threats about account suspension or legal action to create fear.");
   }
   
   if (flags.tooGood.length > 0) {
-    explanations.push("It promises rewards or prizes that seem too good to be true - they usually are.");
+    explanations.push("Promises that seem too good to be true - they usually are.");
   }
-  
-  if (category) {
-    const categoryNames: Record<string, string> = {
-      scholarship: "scholarship/financial aid",
-      job: "job/internship offer",
-      account: "account verification",
-      delivery: "package delivery",
-      prize: "prize/lottery winner",
-      romance: "romance",
-      tech_support: "tech support",
-    };
-    explanations.push(`This appears to be a ${categoryNames[category] || category} type scam.`);
+
+  const categoryNames: Record<ScamCategory, string> = {
+    scholarship_scam: "scholarship/financial aid",
+    job_internship_scam: "job/internship offer",
+    account_verification_scam: "account verification",
+    banking_loan_scam: "banking/loan",
+    delivery_scam: "package delivery",
+    other: "general phishing",
+  };
+
+  if (category !== 'other') {
+    explanations.push(`This appears to be a ${categoryNames[category]} type scam targeting students.`);
   }
   
   return explanations.join(" ");
@@ -225,7 +253,7 @@ function generateSafetyAdvice(
   
   if (flags.credentials.length > 0) {
     advice.push("Never share passwords, SSN, or financial info via email");
-    advice.push("If you're unsure, contact the organization directly using official contact info from their website");
+    advice.push("Contact the organization directly using official contact info from their website");
   }
   
   if (flags.suspiciousLinks.length > 0) {
@@ -247,7 +275,23 @@ function generateSafetyAdvice(
     advice.push("Check the sender's email address for signs of spoofing");
   }
   
-  return [...new Set(advice)]; // Remove duplicates
+  return [...new Set(advice)];
+}
+
+function generateSummaryReport(result: Omit<ScanResult, 'summaryReport'>): string {
+  const categoryLabel = result.category.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  
+  return `
+Risk Score: ${result.riskScore}/100 (${result.riskLevel.toUpperCase()})
+Category: ${categoryLabel} (${result.categoryConfidence}% confidence)
+
+Red Flags: ${result.redFlags.length > 0 ? result.redFlags.join('; ') : 'None detected'}
+
+${result.explanation}
+
+Safety Advice:
+${result.safetyAdvice.map(a => `• ${a}`).join('\n')}
+  `.trim();
 }
 
 export function scanText(text: string): ScanResult {
@@ -256,7 +300,7 @@ export function scanText(text: string): ScanResult {
   const threatMatches = detectPatterns(text, THREAT_PATTERNS);
   const tooGoodMatches = detectPatterns(text, TOO_GOOD_PATTERNS);
   const suspiciousLinkMatches = detectPatterns(text, SUSPICIOUS_LINK_PATTERNS);
-  const impersonationMatches = detectPatterns(text, IMPERSONATION_PATTERNS);
+  const senderMismatchMatches = detectPatterns(text, SENDER_MISMATCH_PATTERNS);
   
   const flagCounts = {
     urgency: urgencyMatches.length,
@@ -264,7 +308,7 @@ export function scanText(text: string): ScanResult {
     threats: threatMatches.length,
     tooGood: tooGoodMatches.length,
     suspiciousLinks: suspiciousLinkMatches.length,
-    impersonation: impersonationMatches.length,
+    senderMismatch: senderMismatchMatches.length,
   };
   
   const flagDetails = {
@@ -273,12 +317,12 @@ export function scanText(text: string): ScanResult {
     threats: threatMatches,
     tooGood: tooGoodMatches,
     suspiciousLinks: suspiciousLinkMatches,
-    impersonation: impersonationMatches,
+    senderMismatch: senderMismatchMatches,
   };
   
   const riskScore = calculateRiskScore(flagCounts);
   const riskLevel = getRiskLevel(riskScore);
-  const scamCategory = detectScamCategory(text);
+  const { category, confidence } = detectScamCategory(text);
   
   // Build red flags list
   const redFlags: string[] = [];
@@ -297,17 +341,26 @@ export function scanText(text: string): ScanResult {
   if (suspiciousLinkMatches.length > 0) {
     redFlags.push(`Suspicious or shortened link detected`);
   }
-  if (impersonationMatches.length > 0) {
-    redFlags.push(`Possible impersonation of: "${impersonationMatches[0]}"`);
+  if (senderMismatchMatches.length > 0) {
+    redFlags.push(`Possible impersonation of: "${senderMismatchMatches[0]}"`);
   }
+
+  const explanation = generateExplanation(flagDetails, category, riskLevel);
+  const safetyAdvice = generateSafetyAdvice(flagDetails, riskLevel);
   
-  return {
+  const partialResult = {
     riskScore,
     riskLevel,
+    category,
+    categoryConfidence: confidence,
     redFlags,
-    explanation: generateExplanation(flagDetails, scamCategory, riskLevel),
-    safetyAdvice: generateSafetyAdvice(flagDetails, riskLevel),
-    scamCategory,
+    explanation,
+    safetyAdvice,
+  };
+  
+  return {
+    ...partialResult,
+    summaryReport: generateSummaryReport(partialResult),
   };
 }
 
@@ -315,34 +368,34 @@ export function scanUrl(url: string): ScanResult {
   const redFlags: string[] = [];
   let riskScore = 0;
   
-  // Check for shortened URLs
+  // Check for shortened URLs (+20)
   for (const pattern of URL_RED_FLAGS.shortened) {
     if (pattern.test(url)) {
       redFlags.push("Shortened URL detected - destination is hidden");
-      riskScore += 25;
+      riskScore += 20;
       break;
     }
   }
   
-  // Check for suspicious TLDs
+  // Check for suspicious TLDs (+20)
   for (const pattern of URL_RED_FLAGS.suspiciousTLD) {
     if (pattern.test(url)) {
       redFlags.push("Suspicious top-level domain commonly used by scammers");
+      riskScore += 20;
+      break;
+    }
+  }
+  
+  // Check for brand impersonation (+30)
+  for (const pattern of URL_RED_FLAGS.impersonation) {
+    if (pattern.test(url)) {
+      redFlags.push("Possible brand impersonation in URL");
       riskScore += 30;
       break;
     }
   }
   
-  // Check for brand impersonation
-  for (const pattern of URL_RED_FLAGS.impersonation) {
-    if (pattern.test(url)) {
-      redFlags.push("Possible brand impersonation in URL");
-      riskScore += 35;
-      break;
-    }
-  }
-  
-  // Check for suspicious keywords
+  // Check for suspicious keywords (+15)
   let keywordCount = 0;
   for (const pattern of URL_RED_FLAGS.suspicious) {
     if (pattern.test(url)) {
@@ -351,31 +404,25 @@ export function scanUrl(url: string): ScanResult {
   }
   if (keywordCount > 0) {
     redFlags.push(`Suspicious keywords in URL (${keywordCount} found)`);
-    riskScore += keywordCount * 10;
+    riskScore += 15;
   }
   
-  // Check for IP address
+  // Check for IP address (+20)
   if (URL_RED_FLAGS.ipAddress.test(url)) {
     redFlags.push("Uses IP address instead of domain name");
-    riskScore += 40;
-  }
-  
-  // Check for long subdomains
-  if (URL_RED_FLAGS.longSubdomain.test(url)) {
-    redFlags.push("Unusually long subdomain chain - may be hiding real domain");
     riskScore += 20;
   }
   
-  // Check for obfuscation
-  if (URL_RED_FLAGS.obfuscated.test(url)) {
-    redFlags.push("URL contains encoded/obfuscated characters");
+  // Check for long subdomains (+15)
+  if (URL_RED_FLAGS.longSubdomain.test(url)) {
+    redFlags.push("Unusually long subdomain chain - may be hiding real domain");
     riskScore += 15;
   }
   
   // Check for HTTPS
   if (!url.startsWith("https://")) {
     redFlags.push("Not using secure HTTPS connection");
-    riskScore += 15;
+    riskScore += 10;
   }
   
   riskScore = Math.min(riskScore, 100);
@@ -406,37 +453,45 @@ export function scanUrl(url: string): ScanResult {
     safetyAdvice.push("Look for the padlock icon in your browser's address bar");
   }
   
-  return {
+  const partialResult = {
     riskScore,
     riskLevel,
+    category: 'other' as ScamCategory,
+    categoryConfidence: 80,
     redFlags,
     explanation,
     safetyAdvice,
-    scamCategory: 'phishing_link',
+  };
+  
+  return {
+    ...partialResult,
+    summaryReport: generateSummaryReport(partialResult),
   };
 }
 
 export function formatReportForCopy(result: ScanResult, originalContent: string): string {
+  const categoryLabel = result.category.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  
   return `
 ═══════════════════════════════════════
-PHISHGUARD SCAN REPORT
+CLICKSAFE SCAN REPORT
 ═══════════════════════════════════════
 
 RISK ASSESSMENT
 ───────────────────────────────────────
 Risk Score: ${result.riskScore}/100
 Risk Level: ${result.riskLevel.toUpperCase()}
-${result.scamCategory ? `Category: ${result.scamCategory.replace(/_/g, ' ').toUpperCase()}` : ''}
+Category: ${categoryLabel} (${result.categoryConfidence}% confidence)
 
 RED FLAGS DETECTED
 ───────────────────────────────────────
 ${result.redFlags.length > 0 ? result.redFlags.map(f => `• ${f}`).join('\n') : '• No significant red flags detected'}
 
-EXPLANATION
+WHAT THIS MEANS
 ───────────────────────────────────────
 ${result.explanation}
 
-SAFETY ADVICE
+WHAT TO DO NEXT
 ───────────────────────────────────────
 ${result.safetyAdvice.map(a => `• ${a}`).join('\n')}
 
@@ -445,18 +500,21 @@ SCANNED CONTENT
 ${originalContent.substring(0, 500)}${originalContent.length > 500 ? '...' : ''}
 
 ═══════════════════════════════════════
-Report generated by PhishGuard
-Stay safe online!
+Report generated by ClickSafe
+Think Before You Click!
 ═══════════════════════════════════════
 `.trim();
 }
 
 export function formatReportForEmail(result: ScanResult, originalContent: string): string {
+  const categoryLabel = result.category.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  
   return `
-PhishGuard Scan Report
+ClickSafe Scan Report
 
 Risk Score: ${result.riskScore}/100
 Risk Level: ${result.riskLevel.toUpperCase()}
+Category: ${categoryLabel}
 
 Red Flags Detected:
 ${result.redFlags.length > 0 ? result.redFlags.map(f => `- ${f}`).join('\n') : '- No significant red flags detected'}
@@ -468,6 +526,7 @@ Scanned Content Preview:
 ${originalContent.substring(0, 300)}${originalContent.length > 300 ? '...' : ''}
 
 ---
-This report was generated by PhishGuard, an AI-powered phishing detection tool.
+This report was generated by ClickSafe, an AI-powered phishing detection tool.
+Think Before You Click!
   `.trim();
 }

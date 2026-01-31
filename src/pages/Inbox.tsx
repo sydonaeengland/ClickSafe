@@ -68,7 +68,7 @@ const Inbox = () => {
           <InboxIcon className="h-5 w-5 text-primary shrink-0" />
           <div>
             <span className="font-medium text-foreground">Demo Inbox</span>
-            <span className="text-muted-foreground"> – These are sample emails to demonstrate PhishGuard's detection capabilities.</span>
+            <span className="text-muted-foreground"> – These are sample emails to demonstrate ClickSafe's detection capabilities.</span>
           </div>
         </motion.div>
 
