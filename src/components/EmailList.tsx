@@ -7,12 +7,15 @@ import { motion } from 'framer-motion';
 interface EmailListProps {
   onSelectEmail: (email: Email) => void;
   selectedEmailId?: string;
+  emails?: Email[];
 }
 
-export function EmailList({ onSelectEmail, selectedEmailId }: EmailListProps) {
+export function EmailList({ onSelectEmail, selectedEmailId, emails }: EmailListProps) {
+  const displayEmails = emails || mockEmails;
+  
   return (
     <div className="divide-y divide-border">
-      {mockEmails.map((email, index) => {
+      {displayEmails.map((email, index) => {
         const scanResult = scanText(email.body);
         const isSelected = email.id === selectedEmailId;
 
