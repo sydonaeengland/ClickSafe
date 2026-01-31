@@ -1,9 +1,11 @@
 import { type ScanResponse } from '@/lib/scanApi';
-import { Shield, AlertTriangle, XCircle, Copy, Mail, CheckCircle, Skull } from 'lucide-react';
+import { Shield, AlertTriangle, XCircle, Copy, Mail, CheckCircle, Skull, Send, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { RiskScoreMeter } from './RiskScoreMeter';
+import { supabase } from '@/integrations/supabase/client';
+import { useState } from 'react';
 
 interface ScanResultsProps {
   result: ScanResponse;
@@ -31,28 +33,9 @@ ${originalContent.substring(0, 500)}${originalContent.length > 500 ? '...' : ''}
 `;
 }
 
-function formatReportForEmail(result: ScanResponse, originalContent: string): string {
-  return `Hello IT Security Team,
-
-I'm reporting a suspicious message that was flagged by ClickSafe.
-
-RISK LEVEL: ${result.riskLevel} (${result.riskScore}/100)
-CATEGORY: ${result.category}
-
-RED FLAGS DETECTED:
-${result.redFlags.map(f => `- ${f}`).join('\n')}
-
-EXPLANATION:
-${result.explanation}
-
-ORIGINAL CONTENT:
-${originalContent.substring(0, 500)}${originalContent.length > 500 ? '...' : ''}
-
-Please investigate. Thank you.
-`;
-}
-
 export function ScanResults({ result, originalContent }: ScanResultsProps) {
+  const [isReporting, setIsReporting] = useState(false);
+
   const meterRiskLevel = ((): 'low' | 'medium' | 'high' | 'critical' => {
     const rl = result.riskLevel.toLowerCase();
     if (rl === 'critical') return 'critical';
@@ -67,10 +50,36 @@ export function ScanResults({ result, originalContent }: ScanResultsProps) {
     toast.success('Report copied to clipboard!');
   };
 
-  const handleReportToIT = () => {
-    const subject = encodeURIComponent(`[ClickSafe Alert] Suspicious ${result.riskLevel.toUpperCase()} Risk Content Detected`);
-    const body = encodeURIComponent(formatReportForEmail(result, originalContent));
-    window.location.href = `mailto:it-security@uwi.edu?subject=${subject}&body=${body}`;
+  const handleReportScam = async () => {
+    setIsReporting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('report-scam', {
+        body: {
+          timestamp: new Date().toLocaleString(),
+          riskScore: result.riskScore,
+          riskLevel: result.riskLevel,
+          category: result.category,
+          redFlags: result.redFlags,
+          originalContent: originalContent,
+          explanation: result.explanation,
+        },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      toast.success('Scam report sent successfully!', {
+        description: 'The report has been submitted to our security team.',
+        icon: <CheckCircle className="h-4 w-4 text-risk-low" />,
+      });
+    } catch (error: any) {
+      console.error('Failed to send report:', error);
+      toast.error('Failed to send report', {
+        description: error.message || 'Please try again later.',
+      });
+    } finally {
+      setIsReporting(false);
+    }
   };
 
   const getRiskConfig = () => {
@@ -205,11 +214,24 @@ export function ScanResults({ result, originalContent }: ScanResultsProps) {
       <div className="flex flex-wrap gap-3 pt-4 border-t border-border">
         <Button variant="outline" onClick={handleCopyReport} className="flex items-center gap-2">
           <Copy className="h-4 w-4" />
-          Copy Scan Report
+          Copy Report
         </Button>
-        <Button variant="outline" onClick={handleReportToIT} className="flex items-center gap-2 border-risk-high/30 text-risk-high hover:bg-risk-high/10">
-          <Mail className="h-4 w-4" />
-          Report to UWI IT
+        <Button 
+          onClick={handleReportScam} 
+          disabled={isReporting}
+          className="flex items-center gap-2 bg-risk-high hover:bg-risk-high/90 text-white border-0"
+        >
+          {isReporting ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Sending...
+            </>
+          ) : (
+            <>
+              <Send className="h-4 w-4" />
+              Report Scam
+            </>
+          )}
         </Button>
       </div>
     </motion.div>
