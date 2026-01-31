@@ -5,6 +5,7 @@ import { ScanResults } from './ScanResults';
 import { ArrowLeft, User, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
+import { useGmail } from '@/contexts/GmailContext';
 
 interface EmailDetailProps {
   email: Email;
@@ -14,12 +15,40 @@ interface EmailDetailProps {
 export function EmailDetail({ email, onBack }: EmailDetailProps) {
   const [scanResult, setScanResult] = useState<ScanResponse | null>(null);
   const [isScanning, setIsScanning] = useState(true);
+  const [fullBody, setFullBody] = useState<string>(email.body);
+  const [isLoadingBody, setIsLoadingBody] = useState(false);
+  const { getEmailDetail, isConnected } = useGmail();
 
+  // Fetch full email body from Gmail API if connected
   useEffect(() => {
+    const fetchFullBody = async () => {
+      // Only fetch if connected and the body looks like a snippet (short)
+      if (isConnected && email.body.length < 200) {
+        setIsLoadingBody(true);
+        try {
+          const detail = await getEmailDetail(email.id);
+          if (detail?.body) {
+            setFullBody(detail.body);
+          }
+        } catch (error) {
+          console.error('Failed to fetch full email body:', error);
+        } finally {
+          setIsLoadingBody(false);
+        }
+      }
+    };
+
+    fetchFullBody();
+  }, [email.id, email.body, isConnected, getEmailDetail]);
+
+  // Scan email after body is loaded
+  useEffect(() => {
+    if (isLoadingBody) return;
+    
     const performScan = async () => {
       setIsScanning(true);
       try {
-        const result = await scanEmail(email.body);
+        const result = await scanEmail(fullBody);
         setScanResult(result);
       } catch (error) {
         console.error('Failed to scan email:', error);
@@ -29,7 +58,7 @@ export function EmailDetail({ email, onBack }: EmailDetailProps) {
     };
 
     performScan();
-  }, [email.body]);
+  }, [fullBody, isLoadingBody]);
 
   return (
     <motion.div
@@ -69,15 +98,17 @@ export function EmailDetail({ email, onBack }: EmailDetailProps) {
 
       {/* Scan Results */}
       <div className="mb-6">
-        {isScanning ? (
+        {isScanning || isLoadingBody ? (
           <div className="cyber-card flex items-center justify-center py-12">
             <div className="text-center">
               <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-3" />
-              <p className="text-muted-foreground">Analyzing email with AI...</p>
+              <p className="text-muted-foreground">
+                {isLoadingBody ? 'Loading email content...' : 'Analyzing email with AI...'}
+              </p>
             </div>
           </div>
         ) : scanResult ? (
-          <ScanResults result={scanResult} originalContent={email.body} />
+          <ScanResults result={scanResult} originalContent={fullBody} />
         ) : (
           <div className="cyber-card text-center py-8 text-muted-foreground">
             Failed to scan email. Please try again.
@@ -89,7 +120,7 @@ export function EmailDetail({ email, onBack }: EmailDetailProps) {
       <div className="cyber-card">
         <h3 className="font-semibold text-foreground mb-3">Original Message</h3>
         <div className="bg-muted/50 rounded-lg p-4 text-sm text-foreground whitespace-pre-wrap font-mono">
-          {email.body}
+          {fullBody}
         </div>
       </div>
     </motion.div>
