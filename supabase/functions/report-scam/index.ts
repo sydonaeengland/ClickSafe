@@ -136,7 +136,7 @@ ${contentPreview}
 
     const emailResponse = await resend.emails.send({
       from: "ClickSafe <onboarding@resend.dev>",
-      to: ["test.scamreport@clicksafe.app"],
+      to: ["teamhacktivate1@gmail.com"],
       subject: "Scam Report from ClickSafe",
       html: emailHtml,
     });
