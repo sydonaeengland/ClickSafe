@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { formatReportForCopy, formatReportForEmail } from '@/lib/scanEngine';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
+import { RiskScoreMeter } from './RiskScoreMeter';
 
 interface ScanResultsProps {
   result: ScanResult;
@@ -18,9 +19,9 @@ export function ScanResults({ result, originalContent }: ScanResultsProps) {
   };
 
   const handleReportToIT = () => {
-    const subject = encodeURIComponent(`[PhishGuard Alert] Suspicious ${result.riskLevel.toUpperCase()} Risk Content Detected`);
+    const subject = encodeURIComponent(`[ClickSafe Alert] Suspicious ${result.riskLevel.toUpperCase()} Risk Content Detected`);
     const body = encodeURIComponent(formatReportForEmail(result, originalContent));
-    window.location.href = `mailto:it-security@university.edu?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:it-security@uwi.edu?subject=${subject}&body=${body}`;
   };
 
   const getRiskConfig = () => {
@@ -56,7 +57,6 @@ export function ScanResults({ result, originalContent }: ScanResultsProps) {
   };
 
   const config = getRiskConfig();
-  const Icon = config.icon;
 
   return (
     <motion.div
@@ -64,28 +64,14 @@ export function ScanResults({ result, originalContent }: ScanResultsProps) {
       animate={{ opacity: 1, y: 0 }}
       className={`cyber-card border-2 ${config.borderClass} overflow-hidden`}
     >
-      {/* Risk Header */}
-      <div className={`-mx-6 -mt-6 mb-6 px-6 py-4 bg-gradient-to-r ${config.gradientClass}`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${config.bgClass} ${config.textClass}`}>
-              <Icon className="h-6 w-6" />
-            </div>
-            <div>
-              <div className={`text-sm font-medium ${config.textClass}`}>{config.label}</div>
-              <div className="text-2xl font-bold text-foreground">
-                Score: {result.riskScore}/100
-              </div>
-            </div>
-          </div>
-          {result.scamCategory && (
-            <div className="hidden sm:block">
-              <span className={`px-3 py-1.5 rounded-full text-sm font-medium ${config.bgClass} ${config.textClass}`}>
-                {result.scamCategory.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-              </span>
-            </div>
-          )}
-        </div>
+      {/* Risk Score Meter */}
+      <div className={`-mx-6 -mt-6 mb-6 px-6 py-8 bg-gradient-to-r ${config.gradientClass}`}>
+        <RiskScoreMeter
+          score={result.riskScore}
+          riskLevel={result.riskLevel}
+          category={result.category}
+          categoryConfidence={result.categoryConfidence}
+        />
       </div>
 
       {/* Red Flags */}
@@ -112,17 +98,17 @@ export function ScanResults({ result, originalContent }: ScanResultsProps) {
         </div>
       )}
 
-      {/* Explanation */}
+      {/* What This Means */}
       <div className="mb-6">
-        <h4 className="font-semibold text-foreground mb-2">Explanation</h4>
+        <h4 className="font-semibold text-foreground mb-2">What This Means</h4>
         <p className="text-muted-foreground text-sm leading-relaxed">{result.explanation}</p>
       </div>
 
-      {/* Safety Advice */}
+      {/* What To Do Next */}
       <div className="mb-6">
         <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
           <CheckCircle className="h-4 w-4 text-risk-low" />
-          Safety Advice
+          What To Do Next
         </h4>
         <ul className="space-y-2">
           {result.safetyAdvice.map((advice, index) => (
@@ -144,11 +130,11 @@ export function ScanResults({ result, originalContent }: ScanResultsProps) {
       <div className="flex flex-wrap gap-3 pt-4 border-t border-border">
         <Button variant="outline" onClick={handleCopyReport} className="flex items-center gap-2">
           <Copy className="h-4 w-4" />
-          Copy Report
+          Copy Scan Report
         </Button>
-        <Button variant="outline" onClick={handleReportToIT} className="flex items-center gap-2">
+        <Button variant="outline" onClick={handleReportToIT} className="flex items-center gap-2 border-risk-high/30 text-risk-high hover:bg-risk-high/10">
           <Mail className="h-4 w-4" />
-          Report to IT
+          Report to UWI IT
         </Button>
       </div>
     </motion.div>

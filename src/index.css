@@ -2,11 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-/* PhishGuard Design System - Cybersecurity Blue Theme */
+/* ClickSafe Design System - Dark Navy + Neon Blue Cybersecurity Theme */
 
 @layer base {
   :root {
-    /* Core cybersecurity blue palette */
+    /* Light mode (fallback) */
     --background: 210 25% 97%;
     --foreground: 215 30% 12%;
 
@@ -16,26 +16,24 @@
     --popover: 0 0% 100%;
     --popover-foreground: 215 30% 12%;
 
-    /* Primary: Deep cybersecurity blue */
-    --primary: 215 80% 45%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 195 100% 50%;
+    --primary-foreground: 210 40% 8%;
 
-    /* Secondary: Soft blue-gray */
     --secondary: 210 20% 94%;
     --secondary-foreground: 215 30% 20%;
 
     --muted: 210 15% 92%;
     --muted-foreground: 215 15% 45%;
 
-    --accent: 210 60% 95%;
-    --accent-foreground: 215 80% 40%;
+    --accent: 195 100% 95%;
+    --accent-foreground: 195 100% 40%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 210 20% 88%;
     --input: 210 20% 88%;
-    --ring: 215 80% 45%;
+    --ring: 195 100% 50%;
 
     --radius: 0.75rem;
 
@@ -47,92 +45,102 @@
     --risk-high: 0 72% 51%;
     --risk-high-bg: 0 72% 95%;
 
-    /* Cybersecurity accent colors */
-    --cyber-blue: 215 80% 50%;
-    --cyber-blue-light: 215 80% 60%;
-    --cyber-blue-dark: 215 80% 35%;
-    --cyber-glow: 200 100% 60%;
+    /* Neon blue accent colors */
+    --cyber-blue: 195 100% 50%;
+    --cyber-blue-light: 195 100% 60%;
+    --cyber-blue-dark: 195 100% 40%;
+    --cyber-glow: 195 100% 55%;
 
     /* Gradients */
-    --gradient-cyber: linear-gradient(135deg, hsl(215 80% 45%) 0%, hsl(200 80% 50%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(215 80% 35%) 0%, hsl(215 80% 50%) 50%, hsl(200 80% 55%) 100%);
+    --gradient-cyber: linear-gradient(135deg, hsl(195 100% 50%) 0%, hsl(210 100% 55%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(210 40% 8%) 0%, hsl(210 45% 12%) 50%, hsl(195 50% 15%) 100%);
     --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(210 25% 98%) 100%);
 
     /* Shadows */
     --shadow-sm: 0 1px 2px 0 hsl(215 30% 12% / 0.05);
     --shadow-md: 0 4px 6px -1px hsl(215 30% 12% / 0.08), 0 2px 4px -2px hsl(215 30% 12% / 0.05);
     --shadow-lg: 0 10px 15px -3px hsl(215 30% 12% / 0.08), 0 4px 6px -4px hsl(215 30% 12% / 0.03);
-    --shadow-glow: 0 0 20px hsl(215 80% 50% / 0.3);
+    --shadow-glow: 0 0 20px hsl(195 100% 50% / 0.3);
 
     /* Sidebar */
     --sidebar-background: 210 25% 98%;
     --sidebar-foreground: 215 30% 20%;
-    --sidebar-primary: 215 80% 45%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 40% 94%;
-    --sidebar-accent-foreground: 215 80% 40%;
+    --sidebar-primary: 195 100% 50%;
+    --sidebar-primary-foreground: 210 40% 8%;
+    --sidebar-accent: 195 60% 94%;
+    --sidebar-accent-foreground: 195 100% 40%;
     --sidebar-border: 210 20% 88%;
-    --sidebar-ring: 215 80% 45%;
+    --sidebar-ring: 195 100% 50%;
   }
 
   .dark {
-    --background: 215 30% 8%;
+    /* Dark Navy Background: #0A1A2F */
+    --background: 213 55% 11%;
     --foreground: 210 20% 95%;
 
-    --card: 215 28% 12%;
+    /* Card: slightly lighter navy */
+    --card: 213 50% 14%;
     --card-foreground: 210 20% 95%;
 
-    --popover: 215 28% 12%;
+    --popover: 213 50% 14%;
     --popover-foreground: 210 20% 95%;
 
-    --primary: 200 80% 55%;
-    --primary-foreground: 215 30% 8%;
+    /* Primary: Neon Blue #00BFFF / #1EC8FF */
+    --primary: 195 100% 50%;
+    --primary-foreground: 213 55% 8%;
 
-    --secondary: 215 25% 18%;
+    /* Secondary: Cool Grey */
+    --secondary: 213 30% 20%;
     --secondary-foreground: 210 20% 90%;
 
-    --muted: 215 25% 18%;
-    --muted-foreground: 210 15% 60%;
+    /* Muted: Dark blue-grey */
+    --muted: 213 30% 18%;
+    --muted-foreground: 217 15% 60%;
 
-    --accent: 215 40% 22%;
-    --accent-foreground: 200 80% 60%;
+    /* Accent */
+    --accent: 213 40% 22%;
+    --accent-foreground: 195 100% 55%;
 
-    --destructive: 0 62% 45%;
+    --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 215 25% 20%;
-    --input: 215 25% 20%;
-    --ring: 200 80% 55%;
+    --border: 213 30% 22%;
+    --input: 213 30% 22%;
+    --ring: 195 100% 50%;
 
+    /* Risk colors for dark mode */
     --risk-low: 142 70% 50%;
-    --risk-low-bg: 142 40% 15%;
+    --risk-low-bg: 142 40% 12%;
     --risk-medium: 38 92% 55%;
-    --risk-medium-bg: 38 50% 15%;
+    --risk-medium-bg: 38 50% 12%;
     --risk-high: 0 72% 55%;
-    --risk-high-bg: 0 40% 15%;
+    --risk-high-bg: 0 40% 12%;
 
-    --cyber-blue: 200 80% 55%;
-    --cyber-blue-light: 200 80% 65%;
-    --cyber-blue-dark: 215 80% 45%;
-    --cyber-glow: 200 100% 65%;
+    /* Neon blue accents */
+    --cyber-blue: 195 100% 50%;
+    --cyber-blue-light: 195 100% 65%;
+    --cyber-blue-dark: 195 100% 40%;
+    --cyber-glow: 195 100% 60%;
 
-    --gradient-cyber: linear-gradient(135deg, hsl(215 80% 50%) 0%, hsl(200 80% 55%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(215 30% 8%) 0%, hsl(215 40% 15%) 50%, hsl(200 50% 20%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(215 28% 14%) 0%, hsl(215 28% 12%) 100%);
+    /* Dark mode gradients */
+    --gradient-cyber: linear-gradient(135deg, hsl(195 100% 50%) 0%, hsl(210 100% 55%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(213 55% 8%) 0%, hsl(213 50% 12%) 50%, hsl(195 50% 15%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(213 50% 16%) 0%, hsl(213 50% 14%) 100%);
 
+    /* Dark shadows with glow */
     --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.3);
     --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.4), 0 2px 4px -2px hsl(0 0% 0% / 0.3);
     --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.4), 0 4px 6px -4px hsl(0 0% 0% / 0.2);
-    --shadow-glow: 0 0 30px hsl(200 80% 55% / 0.4);
+    --shadow-glow: 0 0 30px hsl(195 100% 50% / 0.4);
 
-    --sidebar-background: 215 30% 10%;
+    --sidebar-background: 213 55% 10%;
     --sidebar-foreground: 210 20% 90%;
-    --sidebar-primary: 200 80% 55%;
-    --sidebar-primary-foreground: 215 30% 8%;
-    --sidebar-accent: 215 35% 18%;
-    --sidebar-accent-foreground: 200 80% 60%;
-    --sidebar-border: 215 25% 18%;
-    --sidebar-ring: 200 80% 55%;
+    --sidebar-primary: 195 100% 50%;
+    --sidebar-primary-foreground: 213 55% 8%;
+    --sidebar-accent: 213 40% 18%;
+    --sidebar-accent-foreground: 195 100% 55%;
+    --sidebar-border: 213 30% 20%;
+    --sidebar-ring: 195 100% 50%;
   }
 }
 
@@ -158,6 +166,12 @@
     background: var(--gradient-card);
   }
 
+  .cyber-card-glow {
+    @apply bg-card rounded-xl border border-primary/30 p-6;
+    box-shadow: var(--shadow-md), 0 0 20px hsl(var(--primary) / 0.15);
+    background: var(--gradient-card);
+  }
+
   .cyber-button {
     @apply inline-flex items-center justify-center gap-2 px-6 py-3 font-medium rounded-lg transition-all duration-200;
     background: var(--gradient-cyber);
@@ -168,6 +182,10 @@
   .cyber-button:hover {
     transform: translateY(-1px);
     box-shadow: var(--shadow-lg), var(--shadow-glow);
+  }
+
+  .cyber-button:active {
+    transform: translateY(0);
   }
 
   .risk-badge-low {
@@ -207,6 +225,22 @@
   .hero-gradient {
     background: var(--gradient-hero);
   }
+
+  .neon-border {
+    border: 1px solid hsl(var(--primary) / 0.5);
+    box-shadow: 0 0 10px hsl(var(--primary) / 0.2), inset 0 0 10px hsl(var(--primary) / 0.05);
+  }
+
+  .connection-card {
+    @apply bg-card rounded-xl border border-border p-6 transition-all duration-300 cursor-pointer;
+    background: var(--gradient-card);
+  }
+
+  .connection-card:hover {
+    @apply border-primary/50;
+    box-shadow: var(--shadow-lg), 0 0 25px hsl(var(--primary) / 0.2);
+    transform: translateY(-2px);
+  }
 }
 
 @layer utilities {
@@ -225,6 +259,19 @@
     to {
       box-shadow: 0 0 25px hsl(var(--cyber-blue) / 0.6);
     }
+  }
+
+  @keyframes neon-pulse {
+    0%, 100% {
+      box-shadow: 0 0 5px hsl(var(--primary) / 0.5), 0 0 20px hsl(var(--primary) / 0.3);
+    }
+    50% {
+      box-shadow: 0 0 10px hsl(var(--primary) / 0.8), 0 0 40px hsl(var(--primary) / 0.5);
+    }
+  }
+
+  .animate-neon-pulse {
+    animation: neon-pulse 2s ease-in-out infinite;
   }
 
   .text-gradient-cyber {
