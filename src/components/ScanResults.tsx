@@ -53,6 +53,14 @@ Please investigate. Thank you.
 }
 
 export function ScanResults({ result, originalContent }: ScanResultsProps) {
+  const meterRiskLevel = ((): 'low' | 'medium' | 'high' | 'critical' => {
+    const rl = result.riskLevel.toLowerCase();
+    if (rl === 'critical') return 'critical';
+    if (rl === 'high') return 'high';
+    if (rl === 'medium') return 'medium';
+    return 'low';
+  })();
+
   const handleCopyReport = () => {
     const report = formatReportForCopy(result, originalContent);
     navigator.clipboard.writeText(report);
@@ -118,7 +126,7 @@ export function ScanResults({ result, originalContent }: ScanResultsProps) {
       <div className={`-mx-6 -mt-6 mb-6 px-6 py-8 bg-gradient-to-r ${config.gradientClass}`}>
         <RiskScoreMeter
           score={result.riskScore}
-          riskLevel={result.riskLevel.toLowerCase() as 'low' | 'medium' | 'high'}
+          riskLevel={meterRiskLevel}
           category={result.category}
           categoryConfidence={result.categoryConfidence}
         />
