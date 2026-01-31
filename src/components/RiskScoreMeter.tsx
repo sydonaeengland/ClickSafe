@@ -1,10 +1,11 @@
 import { motion } from 'framer-motion';
-import { Shield, AlertTriangle, XCircle } from 'lucide-react';
-import { type RiskLevel } from '@/lib/scanEngine';
+import { Shield, AlertTriangle, XCircle, Skull } from 'lucide-react';
+
+type MeterRiskLevel = 'low' | 'medium' | 'high' | 'critical';
 
 interface RiskScoreMeterProps {
   score: number;
-  riskLevel: RiskLevel;
+  riskLevel: MeterRiskLevel;
   category?: string;
   categoryConfidence?: number;
 }
@@ -38,6 +39,22 @@ export function RiskScoreMeter({ score, riskLevel, category, categoryConfidence 
           color: 'hsl(var(--risk-high))',
           bgColor: 'hsl(var(--risk-high-bg))',
           glowColor: 'hsl(0 72% 50% / 0.4)',
+        };
+      case 'critical':
+        return {
+          icon: Skull,
+          label: 'Critical Risk',
+          color: 'hsl(var(--risk-high))',
+          bgColor: 'hsl(var(--risk-high-bg))',
+          glowColor: 'hsl(0 72% 50% / 0.55)',
+        };
+      default:
+        return {
+          icon: AlertTriangle,
+          label: 'Risk',
+          color: 'hsl(var(--risk-medium))',
+          bgColor: 'hsl(var(--risk-medium-bg))',
+          glowColor: 'hsl(38 92% 50% / 0.35)',
         };
     }
   };
