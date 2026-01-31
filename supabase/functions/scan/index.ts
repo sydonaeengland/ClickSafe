@@ -87,7 +87,7 @@ serve(async (req) => {
     const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
     
     if (!OPENAI_API_KEY) {
-      console.error('OPENAI_API_KEY not configured');
+      console.error('OPENAI_API_KEY (OpenRouter) not configured');
       return new Response(
         JSON.stringify({ ...FALLBACK_RESPONSE, explanation: 'AI service not configured. Using fallback analysis.' }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -113,14 +113,17 @@ ${content}
 
 Provide your analysis in the exact JSON format specified.`;
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    // Using OpenRouter API (compatible with OpenAI format)
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${OPENAI_API_KEY}`,
         'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://clicksafe.lovable.app',
+        'X-Title': 'ClickSafe Scam Detection',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'openai/gpt-4o-mini',
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
           { role: 'user', content: userPrompt }
