@@ -6,10 +6,18 @@ import { type RiskLevel } from '@/lib/scanEngine';
 import { Star, Mail, MailOpen, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+export interface ScanStats {
+  high: number;
+  medium: number;
+  low: number;
+  scanning: number;
+}
+
 interface EmailListProps {
   onSelectEmail: (email: Email) => void;
   selectedEmailId?: string;
   emails?: Email[];
+  onStatsChange?: (stats: ScanStats) => void;
 }
 
 // Cache for scan results
@@ -26,10 +34,29 @@ function normalizeRiskLevel(apiLevel: ScanResponse['riskLevel']): RiskLevel {
   return levelMap[apiLevel] || 'low';
 }
 
-export function EmailList({ onSelectEmail, selectedEmailId, emails }: EmailListProps) {
+export function EmailList({ onSelectEmail, selectedEmailId, emails, onStatsChange }: EmailListProps) {
   const displayEmails = emails || mockEmails;
   const [scanResults, setScanResults] = useState<Map<string, ScanResponse>>(new Map());
   const [scanningIds, setScanningIds] = useState<Set<string>>(new Set());
+
+  // Calculate and report stats whenever scan results change
+  useEffect(() => {
+    if (!onStatsChange) return;
+    
+    const stats: ScanStats = { high: 0, medium: 0, low: 0, scanning: scanningIds.size };
+    
+    for (const email of displayEmails) {
+      const result = scanResults.get(email.id);
+      if (result) {
+        const level = normalizeRiskLevel(result.riskLevel);
+        if (level === 'high') stats.high++;
+        else if (level === 'medium') stats.medium++;
+        else stats.low++;
+      }
+    }
+    
+    onStatsChange(stats);
+  }, [scanResults, scanningIds, displayEmails, onStatsChange]);
 
   // Scan emails via API on mount
   useEffect(() => {

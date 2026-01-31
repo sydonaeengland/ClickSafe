@@ -1,12 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Header } from '@/components/Header';
-import { EmailList } from '@/components/EmailList';
+import { EmailList, type ScanStats } from '@/components/EmailList';
 import { EmailDetail } from '@/components/EmailDetail';
 import { type Email, mockEmails } from '@/lib/mockData';
 import { Inbox as InboxIcon, Mail, AlertTriangle, Shield, RefreshCw, LogOut, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
-import { scanText } from '@/lib/scanEngine';
 import { useGmail } from '@/contexts/GmailContext';
 import { toast } from 'sonner';
 
@@ -61,16 +60,11 @@ const Inbox = () => {
     starred: false,
   }));
 
-  const stats = currentEmails.reduce(
-    (acc, email) => {
-      const result = scanText(email.body || email.snippet || '');
-      if (result.riskLevel === 'high') acc.high++;
-      else if (result.riskLevel === 'medium') acc.medium++;
-      else acc.low++;
-      return acc;
-    },
-    { high: 0, medium: 0, low: 0 }
-  );
+  const [stats, setStats] = useState<ScanStats>({ high: 0, medium: 0, low: 0, scanning: 0 });
+  
+  const handleStatsChange = useCallback((newStats: ScanStats) => {
+    setStats(newStats);
+  }, []);
 
   const handleConnectGmail = async () => {
     try {
@@ -262,6 +256,7 @@ const Inbox = () => {
                 onSelectEmail={setSelectedEmail}
                 selectedEmailId={selectedEmail?.id}
                 emails={currentEmails}
+                onStatsChange={handleStatsChange}
               />
             </>
           )}
