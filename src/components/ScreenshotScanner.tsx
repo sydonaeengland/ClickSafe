@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Tesseract from 'tesseract.js';
 
 interface ScreenshotScannerProps {
-  onTextExtracted: (text: string) => void;
+  onTextExtracted: (text: string, imageBase64?: string) => void;
 }
 
 export function ScreenshotScanner({ onTextExtracted }: ScreenshotScannerProps) {
@@ -71,7 +71,7 @@ export function ScreenshotScanner({ onTextExtracted }: ScreenshotScannerProps) {
 
   const handleScanExtracted = () => {
     if (extractedText.trim()) {
-      onTextExtracted(extractedText);
+      onTextExtracted(extractedText, imagePreview || undefined);
     }
   };
 
