@@ -112,33 +112,17 @@ export function GmailProvider({ children }: { children: ReactNode }) {
     
     try {
       const redirectUri = `${window.location.origin}/inbox`;
-      
+
       const { data, error: fnError } = await supabase.functions.invoke('gmail-auth', {
-        body: {},
-        headers: {},
+        body: { redirect_uri: redirectUri },
       });
 
-      // For GET request with query params, we need to call differently
-      const response = await fetch(
-        `https://jymgrlxabmzuzdfccuzv.supabase.co/functions/v1/gmail-auth?redirect_uri=${encodeURIComponent(redirectUri)}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      if (fnError) throw new Error(fnError.message);
+      if (data?.error) throw new Error(data.error);
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to get auth URL');
-      }
-
-      const responseData = await response.json();
-      
-      if (responseData.authUrl) {
+      if (data?.authUrl) {
         // Redirect to Google OAuth
-        window.location.href = responseData.authUrl;
+        window.location.href = data.authUrl;
       } else {
         throw new Error('No auth URL received');
       }

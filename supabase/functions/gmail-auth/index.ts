@@ -22,9 +22,20 @@ serve(async (req) => {
       );
     }
 
-    // Get the redirect URI from the request
+    // Get the redirect URI from the request (query param OR JSON body)
     const url = new URL(req.url);
-    const redirectUri = url.searchParams.get('redirect_uri');
+    let redirectUri = url.searchParams.get('redirect_uri');
+
+    if (!redirectUri && req.method !== 'GET') {
+      try {
+        const body = await req.json().catch(() => null);
+        if (body && typeof body.redirect_uri === 'string') {
+          redirectUri = body.redirect_uri;
+        }
+      } catch {
+        // ignore body parse errors; we'll validate redirectUri below
+      }
+    }
     
     if (!redirectUri) {
       return new Response(
