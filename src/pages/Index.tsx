@@ -31,6 +31,7 @@ const GoogleIcon = () => (
 const Index = () => {
   const [scanResult, setScanResult] = useState<ScanResponse | null>(null);
   const [scannedContent, setScannedContent] = useState('');
+  const [screenshotImage, setScreenshotImage] = useState<string | undefined>();
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [isScreenshotScanning, setIsScreenshotScanning] = useState(false);
   const navigate = useNavigate();
@@ -38,19 +39,22 @@ const Index = () => {
   const handleTextScanComplete = (result: ScanResponse, originalText: string) => {
     setScanResult(result);
     setScannedContent(originalText);
+    setScreenshotImage(undefined);
   };
 
   const handleUrlScanComplete = (result: ScanResponse, originalUrl: string) => {
     setScanResult(result);
     setScannedContent(originalUrl);
+    setScreenshotImage(undefined);
   };
 
-  const handleScreenshotText = async (text: string) => {
+  const handleScreenshotText = async (text: string, imageBase64?: string) => {
     setIsScreenshotScanning(true);
     try {
       const result = await scanImage(text);
       setScanResult(result);
       setScannedContent(text);
+      setScreenshotImage(imageBase64);
     } finally {
       setIsScreenshotScanning(false);
     }
@@ -59,6 +63,7 @@ const Index = () => {
   const handleClearResults = () => {
     setScanResult(null);
     setScannedContent('');
+    setScreenshotImage(undefined);
   };
 
   const handleConnectGmail = () => {
@@ -255,7 +260,7 @@ const Index = () => {
                   Clear results
                 </button>
               </div>
-              <ScanResults result={scanResult} originalContent={scannedContent} />
+              <ScanResults result={scanResult} originalContent={scannedContent} screenshotImage={screenshotImage} />
             </motion.div>
           )}
 

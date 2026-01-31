@@ -10,6 +10,7 @@ import { useState } from 'react';
 interface ScanResultsProps {
   result: ScanResponse;
   originalContent: string;
+  screenshotImage?: string;
 }
 
 function formatReportForCopy(result: ScanResponse, originalContent: string): string {
@@ -33,7 +34,7 @@ ${originalContent.substring(0, 500)}${originalContent.length > 500 ? '...' : ''}
 `;
 }
 
-export function ScanResults({ result, originalContent }: ScanResultsProps) {
+export function ScanResults({ result, originalContent, screenshotImage }: ScanResultsProps) {
   const [isReporting, setIsReporting] = useState(false);
 
   const meterRiskLevel = ((): 'low' | 'medium' | 'high' | 'critical' => {
@@ -62,6 +63,7 @@ export function ScanResults({ result, originalContent }: ScanResultsProps) {
           redFlags: result.redFlags,
           originalContent: originalContent,
           explanation: result.explanation,
+          screenshotImage: screenshotImage,
         },
       });
 

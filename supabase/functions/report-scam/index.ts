@@ -17,6 +17,7 @@ interface ScamReportRequest {
   redFlags: string[];
   originalContent: string;
   explanation?: string;
+  screenshotImage?: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -110,6 +111,18 @@ const handler = async (req: Request): Promise<Response> => {
             <p style="margin: 0; font-size: 14px; color: #94a3b8; line-height: 1.6;">
               ${reportData.explanation}
             </p>
+          </div>
+          ` : ''}
+
+          ${reportData.screenshotImage ? `
+          <!-- Screenshot -->
+          <div style="padding: 24px; border-bottom: 1px solid #334155;">
+            <h2 style="margin: 0 0 12px; color: #00bfff; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">
+              Uploaded Screenshot
+            </h2>
+            <div style="background-color: #0f172a; border-radius: 8px; padding: 16px; text-align: center;">
+              <img src="${reportData.screenshotImage}" alt="Scanned screenshot" style="max-width: 100%; max-height: 400px; border-radius: 4px;" />
+            </div>
           </div>
           ` : ''}
 
