@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { Search, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { scanText, type ScanResult } from '@/lib/scanEngine';
+import { scanText, type ScanResponse } from '@/lib/scanApi';
 
 interface TextScannerProps {
-  onScanComplete: (result: ScanResult, originalText: string) => void;
+  onScanComplete: (result: ScanResponse, originalText: string) => void;
 }
 
 export function TextScanner({ onScanComplete }: TextScannerProps) {
@@ -17,12 +17,14 @@ export function TextScanner({ onScanComplete }: TextScannerProps) {
 
     setIsScanning(true);
     
-    // Simulate a brief processing delay for better UX
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
-    const result = scanText(text);
-    onScanComplete(result, text);
-    setIsScanning(false);
+    try {
+      const result = await scanText(text);
+      onScanComplete(result, text);
+    } catch (error) {
+      console.error('Scan failed:', error);
+    } finally {
+      setIsScanning(false);
+    }
   };
 
   return (
@@ -41,7 +43,7 @@ export function TextScanner({ onScanComplete }: TextScannerProps) {
         {isScanning ? (
           <>
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            Analyzing...
+            Analyzing with AI...
           </>
         ) : (
           <>

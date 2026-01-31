@@ -4,10 +4,9 @@ import { TextScanner } from '@/components/TextScanner';
 import { UrlScanner } from '@/components/UrlScanner';
 import { ScreenshotScanner } from '@/components/ScreenshotScanner';
 import { ScanResults } from '@/components/ScanResults';
-import { Shield, MessageSquare, Link2, Image, Sparkles, Mail, AlertTriangle, ChevronRight, BookOpen } from 'lucide-react';
+import { Shield, MessageSquare, Link2, Image, Sparkles, AlertTriangle, ChevronRight, BookOpen, Loader2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { type ScanResult, scanText } from '@/lib/scanEngine';
+import { type ScanResponse, scanImage } from '@/lib/scanApi';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { TutorialModal } from '@/components/TutorialModal';
@@ -30,25 +29,31 @@ const GoogleIcon = () => (
 );
 
 const Index = () => {
-  const [scanResult, setScanResult] = useState<ScanResult | null>(null);
+  const [scanResult, setScanResult] = useState<ScanResponse | null>(null);
   const [scannedContent, setScannedContent] = useState('');
   const [tutorialOpen, setTutorialOpen] = useState(false);
+  const [isScreenshotScanning, setIsScreenshotScanning] = useState(false);
   const navigate = useNavigate();
 
-  const handleTextScanComplete = (result: ScanResult, originalText: string) => {
+  const handleTextScanComplete = (result: ScanResponse, originalText: string) => {
     setScanResult(result);
     setScannedContent(originalText);
   };
 
-  const handleUrlScanComplete = (result: ScanResult, originalUrl: string) => {
+  const handleUrlScanComplete = (result: ScanResponse, originalUrl: string) => {
     setScanResult(result);
     setScannedContent(originalUrl);
   };
 
-  const handleScreenshotText = (text: string) => {
-    const result = scanText(text);
-    setScanResult(result);
-    setScannedContent(text);
+  const handleScreenshotText = async (text: string) => {
+    setIsScreenshotScanning(true);
+    try {
+      const result = await scanImage(text);
+      setScanResult(result);
+      setScannedContent(text);
+    } finally {
+      setIsScreenshotScanning(false);
+    }
   };
 
   const handleClearResults = () => {
@@ -57,12 +62,10 @@ const Index = () => {
   };
 
   const handleConnectGmail = () => {
-    // Will be implemented with Google OAuth
     navigate('/inbox');
   };
 
   const handleConnectOutlook = () => {
-    // Will be implemented with Microsoft OAuth
     navigate('/inbox');
   };
 
@@ -222,6 +225,12 @@ const Index = () => {
                     <span>Upload a screenshot for OCR text extraction</span>
                   </div>
                   <ScreenshotScanner onTextExtracted={handleScreenshotText} />
+                  {isScreenshotScanning && (
+                    <div className="flex items-center justify-center gap-2 py-4">
+                      <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                      <span className="text-muted-foreground">Analyzing with AI...</span>
+                    </div>
+                  )}
                 </div>
               </TabsContent>
             </Tabs>
@@ -261,8 +270,8 @@ const Index = () => {
               {[
                 {
                   icon: Shield,
-                  title: 'Rule-Based Detection',
-                  description: 'Identifies urgency language, credential requests, and suspicious patterns',
+                  title: 'GPT-4o Powered',
+                  description: 'Advanced AI scam detection using OpenAI\'s latest model',
                 },
                 {
                   icon: Sparkles,
