@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { Link2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { scanUrl, type ScanResult } from '@/lib/scanEngine';
+import { scanUrl, type ScanResponse } from '@/lib/scanApi';
 
 interface UrlScannerProps {
-  onScanComplete: (result: ScanResult, originalUrl: string) => void;
+  onScanComplete: (result: ScanResponse, originalUrl: string) => void;
 }
 
 export function UrlScanner({ onScanComplete }: UrlScannerProps) {
@@ -17,12 +17,14 @@ export function UrlScanner({ onScanComplete }: UrlScannerProps) {
 
     setIsScanning(true);
     
-    // Simulate processing delay
-    await new Promise(resolve => setTimeout(resolve, 600));
-    
-    const result = scanUrl(url);
-    onScanComplete(result, url);
-    setIsScanning(false);
+    try {
+      const result = await scanUrl(url);
+      onScanComplete(result, url);
+    } catch (error) {
+      console.error('Scan failed:', error);
+    } finally {
+      setIsScanning(false);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

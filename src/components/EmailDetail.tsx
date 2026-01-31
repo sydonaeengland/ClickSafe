@@ -1,7 +1,8 @@
+import { useState, useEffect } from 'react';
 import { type Email } from '@/lib/mockData';
-import { scanText } from '@/lib/scanEngine';
+import { scanEmail, type ScanResponse } from '@/lib/scanApi';
 import { ScanResults } from './ScanResults';
-import { ArrowLeft, User } from 'lucide-react';
+import { ArrowLeft, User, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 
@@ -11,7 +12,24 @@ interface EmailDetailProps {
 }
 
 export function EmailDetail({ email, onBack }: EmailDetailProps) {
-  const scanResult = scanText(email.body);
+  const [scanResult, setScanResult] = useState<ScanResponse | null>(null);
+  const [isScanning, setIsScanning] = useState(true);
+
+  useEffect(() => {
+    const performScan = async () => {
+      setIsScanning(true);
+      try {
+        const result = await scanEmail(email.body);
+        setScanResult(result);
+      } catch (error) {
+        console.error('Failed to scan email:', error);
+      } finally {
+        setIsScanning(false);
+      }
+    };
+
+    performScan();
+  }, [email.body]);
 
   return (
     <motion.div
@@ -51,7 +69,20 @@ export function EmailDetail({ email, onBack }: EmailDetailProps) {
 
       {/* Scan Results */}
       <div className="mb-6">
-        <ScanResults result={scanResult} originalContent={email.body} />
+        {isScanning ? (
+          <div className="cyber-card flex items-center justify-center py-12">
+            <div className="text-center">
+              <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-3" />
+              <p className="text-muted-foreground">Analyzing email with AI...</p>
+            </div>
+          </div>
+        ) : scanResult ? (
+          <ScanResults result={scanResult} originalContent={email.body} />
+        ) : (
+          <div className="cyber-card text-center py-8 text-muted-foreground">
+            Failed to scan email. Please try again.
+          </div>
+        )}
       </div>
 
       {/* Original Email Body */}

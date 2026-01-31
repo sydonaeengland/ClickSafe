@@ -1,14 +1,55 @@
-import { type ScanResult } from '@/lib/scanEngine';
-import { Shield, AlertTriangle, XCircle, Copy, Mail, CheckCircle } from 'lucide-react';
+import { type ScanResponse } from '@/lib/scanApi';
+import { Shield, AlertTriangle, XCircle, Copy, Mail, CheckCircle, Skull } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { formatReportForCopy, formatReportForEmail } from '@/lib/scanEngine';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { RiskScoreMeter } from './RiskScoreMeter';
 
 interface ScanResultsProps {
-  result: ScanResult;
+  result: ScanResponse;
   originalContent: string;
+}
+
+function formatReportForCopy(result: ScanResponse, originalContent: string): string {
+  return `ClickSafe Scan Report
+====================
+Risk Level: ${result.riskLevel} (${result.riskScore}/100)
+Category: ${result.category} (${Math.round(result.categoryConfidence * 100)}% confidence)
+Safe to Open: ${result.safeToOpen ? 'Yes' : 'No'}
+
+Red Flags:
+${result.redFlags.map(f => `• ${f}`).join('\n')}
+
+Explanation:
+${result.explanation}
+
+Safety Advice:
+${result.safetyAdvice.map(a => `• ${a}`).join('\n')}
+
+Original Content:
+${originalContent.substring(0, 500)}${originalContent.length > 500 ? '...' : ''}
+`;
+}
+
+function formatReportForEmail(result: ScanResponse, originalContent: string): string {
+  return `Hello IT Security Team,
+
+I'm reporting a suspicious message that was flagged by ClickSafe.
+
+RISK LEVEL: ${result.riskLevel} (${result.riskScore}/100)
+CATEGORY: ${result.category}
+
+RED FLAGS DETECTED:
+${result.redFlags.map(f => `- ${f}`).join('\n')}
+
+EXPLANATION:
+${result.explanation}
+
+ORIGINAL CONTENT:
+${originalContent.substring(0, 500)}${originalContent.length > 500 ? '...' : ''}
+
+Please investigate. Thank you.
+`;
 }
 
 export function ScanResults({ result, originalContent }: ScanResultsProps) {
@@ -26,7 +67,7 @@ export function ScanResults({ result, originalContent }: ScanResultsProps) {
 
   const getRiskConfig = () => {
     switch (result.riskLevel) {
-      case 'low':
+      case 'Low':
         return {
           icon: Shield,
           label: 'Low Risk',
@@ -35,7 +76,7 @@ export function ScanResults({ result, originalContent }: ScanResultsProps) {
           borderClass: 'border-risk-low/30',
           gradientClass: 'from-risk-low/20 to-risk-low/5',
         };
-      case 'medium':
+      case 'Medium':
         return {
           icon: AlertTriangle,
           label: 'Medium Risk',
@@ -44,7 +85,7 @@ export function ScanResults({ result, originalContent }: ScanResultsProps) {
           borderClass: 'border-risk-medium/30',
           gradientClass: 'from-risk-medium/20 to-risk-medium/5',
         };
-      case 'high':
+      case 'High':
         return {
           icon: XCircle,
           label: 'High Risk',
@@ -52,6 +93,15 @@ export function ScanResults({ result, originalContent }: ScanResultsProps) {
           textClass: 'text-risk-high',
           borderClass: 'border-risk-high/30',
           gradientClass: 'from-risk-high/20 to-risk-high/5',
+        };
+      case 'Critical':
+        return {
+          icon: Skull,
+          label: 'Critical Risk',
+          bgClass: 'bg-risk-high-bg',
+          textClass: 'text-risk-high',
+          borderClass: 'border-risk-high/50',
+          gradientClass: 'from-risk-high/30 to-risk-high/10',
         };
     }
   };
@@ -68,10 +118,27 @@ export function ScanResults({ result, originalContent }: ScanResultsProps) {
       <div className={`-mx-6 -mt-6 mb-6 px-6 py-8 bg-gradient-to-r ${config.gradientClass}`}>
         <RiskScoreMeter
           score={result.riskScore}
-          riskLevel={result.riskLevel}
+          riskLevel={result.riskLevel.toLowerCase() as 'low' | 'medium' | 'high'}
           category={result.category}
           categoryConfidence={result.categoryConfidence}
         />
+      </div>
+
+      {/* Safety Status */}
+      <div className={`mb-6 p-4 rounded-lg ${result.safeToOpen ? 'bg-risk-low/10 border border-risk-low/30' : 'bg-risk-high/10 border border-risk-high/30'}`}>
+        <div className="flex items-center gap-2">
+          {result.safeToOpen ? (
+            <>
+              <CheckCircle className="h-5 w-5 text-risk-low" />
+              <span className="font-medium text-risk-low">Appears Safe to Open</span>
+            </>
+          ) : (
+            <>
+              <XCircle className="h-5 w-5 text-risk-high" />
+              <span className="font-medium text-risk-high">Exercise Caution - Do Not Engage</span>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Red Flags */}
