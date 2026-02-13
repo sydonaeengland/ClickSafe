@@ -213,7 +213,6 @@ const About = () => {
           className="text-center mt-12 text-sm text-muted-foreground"
         >
           <p>Built with ❤️ for student safety</p>
-          <p className="mt-1">Hackathon Project 2024</p>
         </motion.div>
       </main>
     </div>
