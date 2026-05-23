@@ -1,73 +1,101 @@
-# Welcome to your Lovable project
+# ClickSafe 🛡️
+### AI-Powered Scam & Phishing Detection for Students
 
-## Project info
+ClickSafe helps students identify phishing attempts and online scams before they become victims. Using a hybrid AI + rule-based approach, it analyses suspicious messages, URLs, and screenshots in real time — providing plain-language explanations students can actually understand.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+---
 
-## How can I edit this code?
+## The Problem
 
-There are several ways of editing your application.
+Students are prime targets for phishing and scams:
+- **50%+** of students receive phishing emails every year
+- **2,300+** phishing emails target university students annually
+- Financial pressure makes them vulnerable to "easy money" scams
+- Less experience spotting sophisticated phishing attempts
 
-**Use Lovable**
+Yet students lack access to enterprise-grade security tools. ClickSafe fills that gap — free, accessible, and built for them.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+---
 
-Changes made via Lovable will be committed automatically to this repo.
+## Features
 
-**Use your preferred IDE**
+| Feature | Description |
+|---|---|
+| **Paste Message or Link** | Manually check suspicious messages and URLs instantly |
+| **Screenshot OCR** | Upload images of WhatsApp, SMS, or social media scams for analysis |
+| **Automatic Email Scan** | Scan your inbox for risky emails with risk level classification |
+| **Interactive Tutorial** | Guided walkthroughs that teach students how to spot scams themselves |
+| **Real-Time Risk Scoring** | 0–100 risk score with clear, plain-language explanations |
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+---
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## How It Works
 
-Follow these steps:
+1. **Input** — Paste a suspicious message or URL, or upload a screenshot
+2. **Scan** — A hybrid AI + rule-based engine analyses the content for red flags
+3. **Results** — Receive a 0–100 risk score with a plain-language explanation
+4. **Action** — Follow tailored safety advice or report to your IT department
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Hybrid Intelligence Approach
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+**Rule-Based Detection** ensures consistency and auditability:
+- Urgency language pattern detection
+- Suspicious domain analysis
+- Credential request detection
+- URL shortener identification
+- Brand impersonation checks
 
-# Step 3: Install the necessary dependencies.
-npm i
+**AI Explanation Layer** provides context and clarity:
+- Scam category classification
+- Plain-language risk explanation
+- Context-aware safety advice
+- Student-friendly tone
+- OCR text extraction from images
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+---
+
+## Tech Stack
+
+| Layer | Technologies |
+|---|---|
+| Frontend | React, TypeScript, Tailwind CSS |
+| Backend | Supabase, OpenRouter API |
+| AI | LLM APIs via OpenRouter, OCR |
+| Build Tool | Vite |
+
+---
+
+## Getting Started
+
+### Prerequisites
+- Node.js & npm installed
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/sydonaeengland/ClickSafe.git
+
+# Navigate into the project
+cd ClickSafe
+
+# Install dependencies
+npm install
+
+# Set up environment variables
+cp .env.example .env
+# Add your OpenRouter API key and Supabase credentials
+
+# Start the development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Environment Variables
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```env
+VITE_OPENROUTER_API_KEY=your_openrouter_key
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+---
